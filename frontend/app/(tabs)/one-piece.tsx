@@ -3,7 +3,7 @@ import { Personaje, useAnime } from "@/context/AnimeContext";
 import { useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL + "/api";
+const API_URL = (process.env.EXPO_PUBLIC_API_URL || "https://anime-api-backend-b8tk.onrender.com") + "/api";
 const PRIMARY      = "#E91E8C";
 const PRIMARY_DARK = "#880E4F";
 const ACCENT       = "#FF80AB";
