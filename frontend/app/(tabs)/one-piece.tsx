@@ -1,4 +1,4 @@
-import ModalImagenes from "@/components/ModalImagenes";
+import ImagenesLista from "@/components/ImagenesLista";
 import { Personaje, useAnime } from "@/context/AnimeContext";
 import { useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
@@ -14,8 +14,7 @@ export default function OnePieceScreen() {
   const [nombre, setNombre] = useState("");
   const { personajes, setPersonaje } = useAnime();
   const [error, setError] = useState("");
-  const [mostrarModal, setMostrarModal] = useState(false);
-  const [imagenesModal, setImagenesModal] = useState<string[]>([]);
+  const [mostrarImagenes, setMostrarImagenes] = useState(false);
 
   const anime = "one-piece";
   const personaje = personajes[anime];
@@ -23,23 +22,12 @@ export default function OnePieceScreen() {
   const consultarPersonaje = async () => {
     if (!nombre.trim()) return;
     setError("");
-    setMostrarModal(false);
+    setMostrarImagenes(false);
     try {
       const res = await fetch(`${API_URL}/${anime}/${nombre.toLowerCase().trim()}`);
       if (!res.ok) throw new Error("Personaje no encontrado");
       const data: Personaje = await res.json();
       setPersonaje(anime, data);
-      setImagenesModal(data.imagenes);
-      Alert.alert(
-        data.nombre.toUpperCase(),
-        `Descripcion: ${data.descripcion}\nHabilidades: ${data.habilidades}\nImagenes recuperadas: ${data.imagenes.length}`,
-        [
-          { text: "OK" },
-          ...(data.imagenes.length > 0
-            ? [{ text: "Ver imagenes", onPress: () => setMostrarModal(true) }]
-            : []),
-        ]
-      );
     } catch (e: any) {
       setError(e.message);
     }
@@ -95,15 +83,22 @@ export default function OnePieceScreen() {
                 <Text style={styles.infoValue}>{personaje.imagenes.length} recuperadas</Text>
               </View>
             </View>
-            {personaje.imagenes.length > 0 && (
-              <Pressable style={styles.imagesButton} onPress={() => { setImagenesModal(personaje.imagenes); setMostrarModal(true); }}>
-                <Text style={styles.imagesButtonText}>🌸 Ver Imagenes ({personaje.imagenes.length})</Text>
+            {personaje.imagenes.length > 0 && !mostrarImagenes && (
+              <Pressable style={styles.imagesButton} onPress={() => setMostrarImagenes(true)}>
+                <Text style={styles.imagesButtonText}>🌸 Ver Imágenes ({personaje.imagenes.length})</Text>
+              </Pressable>
+            )}
+            {personaje.imagenes.length > 0 && mostrarImagenes && (
+              <Pressable style={styles.hideButton} onPress={() => setMostrarImagenes(false)}>
+                <Text style={styles.imagesButtonText}>✕ Ocultar Imágenes</Text>
               </Pressable>
             )}
           </View>
         )}
 
-        <ModalImagenes visible={mostrarModal} imagenes={imagenesModal} onClose={() => setMostrarModal(false)} />
+        {personaje && mostrarImagenes && personaje.imagenes.length > 0 && (
+          <ImagenesLista imagenes={personaje.imagenes} />
+        )}
       </View>
     </ScrollView>
   );
@@ -155,5 +150,6 @@ const styles = StyleSheet.create({
   infoLabel: { color: PRIMARY_DARK, fontSize: 11, fontWeight: "700", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 },
   infoValue: { color: "#4A0030", fontSize: 14, lineHeight: 20 },
   imagesButton: { backgroundColor: PRIMARY_DARK, padding: 14, alignItems: "center" },
+  hideButton: { backgroundColor: "#C2185B", padding: 14, alignItems: "center" },
   imagesButtonText: { color: "#fff", fontSize: 14, fontWeight: "700" },
 });
