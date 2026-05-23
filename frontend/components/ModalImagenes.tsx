@@ -1,4 +1,7 @@
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 interface ModalImagenesProps {
   visible: boolean;
@@ -6,13 +9,43 @@ interface ModalImagenesProps {
   onClose: () => void;
 }
 
+function ImagenItem({ url, index }: { url: string; index: number }) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  return (
+    <View style={styles.imageSlot}>
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color="#E91E8C" />
+        </View>
+      )}
+      {error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>❌</Text>
+        </View>
+      ) : (
+        <Image
+          source={{ uri: url }}
+          style={[styles.image, loading && { opacity: 0 }]}
+          resizeMode="cover"
+          onLoadStart={() => setLoading(true)}
+          onLoadEnd={() => setLoading(false)}
+          onError={() => { setError(true); setLoading(false); }}
+        />
+      )}
+      <Text style={styles.imageLabel}>Imagen {index + 1}</Text>
+    </View>
+  );
+}
+
 export default function ModalImagenes({ visible, imagenes, onClose }: ModalImagenesProps) {
   const total = imagenes.length;
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <View style={styles.modalContainer} onStartShouldSetResponder={() => true}>
+      <View style={styles.backdrop}>
+        <View style={styles.modalContainer}>
 
           <View style={styles.header}>
             <Text style={styles.title}>🌸 Imágenes ({total})</Text>
@@ -21,7 +54,11 @@ export default function ModalImagenes({ visible, imagenes, onClose }: ModalImage
             </Pressable>
           </View>
 
-          <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <ScrollView 
+            style={styles.scrollView} 
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={true}
+          >
             {total === 0 ? (
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyText}>No hay imágenes disponibles</Text>
@@ -29,17 +66,14 @@ export default function ModalImagenes({ visible, imagenes, onClose }: ModalImage
             ) : (
               <View style={styles.grid}>
                 {imagenes.map((url, i) => (
-                  <View key={i} style={styles.imageSlot}>
-                    <Image source={{ uri: url }} style={styles.image} resizeMode="contain" />
-                    <Text style={styles.imageLabel}>Imagen {i + 1}</Text>
-                  </View>
+                  <ImagenItem key={i} url={url} index={i} />
                 ))}
               </View>
             )}
           </ScrollView>
 
         </View>
-      </Pressable>
+      </View>
     </Modal>
   );
 }
@@ -74,8 +108,17 @@ const styles = StyleSheet.create({
     width: "48%", alignItems: "center",
     backgroundColor: "#FFF0F5", borderRadius: 14,
     padding: 10, borderWidth: 1.5, borderColor: "#F48FB1",
-    marginBottom: 14,
+    marginBottom: 14, minHeight: 180,
   },
+  loadingContainer: {
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 30,
+    justifyContent: "center", alignItems: "center", backgroundColor: "#FFE4EF", borderRadius: 10,
+  },
+  errorContainer: {
+    width: "100%", height: 150, borderRadius: 10, backgroundColor: "#FFE4EF",
+    justifyContent: "center", alignItems: "center",
+  },
+  errorText: { fontSize: 32 },
   image: { width: "100%", height: 150, borderRadius: 10, backgroundColor: "#FFE4EF" },
   imageLabel: { color: "#C2185B", fontSize: 12, marginTop: 8, fontWeight: "600", textAlign: "center" },
 });
