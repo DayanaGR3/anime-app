@@ -69,12 +69,13 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 16, paddingBottom: 32 },
   emptyContainer: { alignItems: "center", justifyContent: "center", padding: 40 },
   emptyText: { color: "#C48AA8", fontSize: 16, fontWeight: "bold", textAlign: "center" },
-  grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", gap: 14 },
+  grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
   imageSlot: {
     width: "48%", alignItems: "center",
     backgroundColor: "#FFF0F5", borderRadius: 14,
     padding: 10, borderWidth: 1.5, borderColor: "#F48FB1",
+    marginBottom: 14,
   },
-  image: { width: "100%", height: 150, borderRadius: 10 },
+  image: { width: "100%", height: 150, borderRadius: 10, backgroundColor: "#FFE4EF" },
   imageLabel: { color: "#C2185B", fontSize: 12, marginTop: 8, fontWeight: "600", textAlign: "center" },
 });
